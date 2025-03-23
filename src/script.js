@@ -49,7 +49,10 @@ document.addEventListener("DOMContentLoaded", function(){
         li.className = "flex justify-between items-center bg-gray-200 p-2 rounded-md shadow-sm";
         li.innerHTML = `
             <span class="text-gray-800">${noteText}</span>
-            <button class="text-red-500 hover:text-red-700 transition delete-btn">❌</button>
+            <div class="flex gap-2">
+                <button class="edit-btn text-yellow-500 hover:text-yellow-600 transition">✏️</button>
+                <button class="delete-btn text-red-500 hover:text-red-700 transition">❌</button>
+            </div>
         `;
 
         noteList.appendChild(li);
@@ -60,7 +63,40 @@ document.addEventListener("DOMContentLoaded", function(){
 
         li.querySelector(".delete-btn").addEventListener("click", function(){
             noteToDelete = li;
-            confirmModal.classList.remove("hidden"); // Modalı göster
+            confirmModal.classList.remove("hidden"); 
+        });
+
+        li.querySelector(".edit-btn").addEventListener("click", function () {
+            const span = li.querySelector("span");
+            const originalText = span.textContent;
+        
+            // Geçici textarea oluştur
+            const textarea = document.createElement("textarea");
+            textarea.className = "w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500";
+            textarea.value = originalText;
+        
+            // Span yerine textarea’yı koy
+            li.replaceChild(textarea, span);
+            textarea.focus();
+        
+            // Enter'a basıldığında veya odak kaybolduğunda güncelle
+            textarea.addEventListener("blur", function () {
+                const updatedText = textarea.value.trim();
+                if (updatedText !== "") {
+                    const newSpan = document.createElement("span");
+                    newSpan.textContent = updatedText;
+                    newSpan.className = "text-gray-800";
+        
+                    li.replaceChild(newSpan, textarea);
+                    saveNotes(); 
+                } else {
+                    const originalSpan = document.createElement("span");
+                    originalSpan.textContent = originalText;
+                    originalSpan.className = "text-gray-800";
+        
+                    li.replaceChild(originalSpan, textarea);
+                }
+            });
         });
     }
 
