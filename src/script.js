@@ -40,15 +40,21 @@ document.addEventListener("DOMContentLoaded", function(){
         }
     });
 
-    function addNote(noteText, shouldSave = true){
+    function addNote(noteText, noteDate = null, shouldSave = true){
+
         if(noteText.trim() === "") return;
 
         console.log("Yeni not ekleniyor:", noteText);
 
+        const createdAt = noteDate || new Date().toLocaleString("tr-TR");
         const li = document.createElement("li");
+
         li.className = "flex justify-between items-center bg-gray-200 p-2 rounded-md shadow-sm";
         li.innerHTML = `
-            <span class="text-gray-800">${noteText}</span>
+            <div class="flex flex-col w-full">
+                <span class="text-gray-800" data-date="${createdAt}">${noteText}</span>
+                <small class="text-xs text-gray-500 mt-1">📅 ${createdAt}</small>
+            </div>
             <div class="flex gap-2">
                 <button class="edit-btn text-yellow-500 hover:text-yellow-600 transition">✏️</button>
                 <button class="delete-btn text-red-500 hover:text-red-700 transition">❌</button>
@@ -67,35 +73,31 @@ document.addEventListener("DOMContentLoaded", function(){
         });
 
         li.querySelector(".edit-btn").addEventListener("click", function () {
-            const span = li.querySelector("span");
+            const span = li.querySelector("div span");
             const originalText = span.textContent;
         
-            // Geçici textarea oluştur
             const textarea = document.createElement("textarea");
             textarea.className = "w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500";
             textarea.value = originalText;
         
-            // Span yerine textarea’yı koy
-            li.replaceChild(textarea, span);
+            li.querySelector("div").replaceChild(textarea, span);
             textarea.focus();
         
-            // Enter'a basıldığında veya odak kaybolduğunda güncelle
             textarea.addEventListener("blur", function () {
                 const updatedText = textarea.value.trim();
-                if (updatedText !== "") {
-                    const newSpan = document.createElement("span");
-                    newSpan.textContent = updatedText;
-                    newSpan.className = "text-gray-800";
+                const date = new Date().toLocaleString("tr-TR");
         
-                    li.replaceChild(newSpan, textarea);
-                    saveNotes(); 
-                } else {
-                    const originalSpan = document.createElement("span");
-                    originalSpan.textContent = originalText;
-                    originalSpan.className = "text-gray-800";
-        
-                    li.replaceChild(originalSpan, textarea);
-                }
+                const newSpan = document.createElement("span");
+                newSpan.textContent = updatedText || originalText;
+                newSpan.className = "text-gray-800";
+                newSpan.setAttribute("data-date", date);
+              
+                li.querySelector("div").replaceChild(newSpan, textarea);
+
+                const small = li.querySelector("small");
+                small.textContent = `📅 ${date}`;
+                
+                saveNotes();
             });
         });
     }
@@ -103,7 +105,10 @@ document.addEventListener("DOMContentLoaded", function(){
     function saveNotes(){
         const notes = [];
         document.querySelectorAll("#note-list li span").forEach(noteElement => {
-            notes.push(noteElement.textContent);
+            notes.push({
+                text: noteElement.textContent,
+                date: noteElement.getAttribute("data-date")
+            });
         });
         console.log("Kaydedilen Notlar:",notes);
         localStorage.setItem("notes", JSON.stringify(notes));
@@ -121,7 +126,7 @@ document.addEventListener("DOMContentLoaded", function(){
         console.log("Yüklenen Notlar:", notes);
 
         notes.forEach(note => {
-            addNote(note, false);
+            addNote(note.text, note.date , false);
         });
     }
 });
