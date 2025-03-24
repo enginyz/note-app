@@ -1,4 +1,6 @@
 document.addEventListener("DOMContentLoaded", function(){
+    const body = document.body;
+
     const noteInput = document.querySelector("#note-input");
     const saveNoteButton = document.querySelector("#save-note");
     const noteList = document.querySelector("#note-list");
@@ -49,7 +51,7 @@ document.addEventListener("DOMContentLoaded", function(){
         const createdAt = noteDate || new Date().toLocaleString("tr-TR");
         const li = document.createElement("li");
 
-        li.className = "flex justify-between items-center bg-gray-200 p-2 rounded-md shadow-sm";
+        li.className = "flex justify-between items-center bg-gray-200 dark:bg-gray-700 p-2 rounded-md shadow-sm";
         li.innerHTML = `
             <div class="flex flex-col w-full">
                 <span class="text-gray-800" data-date="${createdAt}">${noteText}</span>
