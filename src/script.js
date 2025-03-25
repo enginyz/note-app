@@ -16,9 +16,15 @@ document.addEventListener("DOMContentLoaded", function(){
 
     searchInput.addEventListener("input", function () {
         const searchTerm = searchInput.value.toLowerCase();
+
         document.querySelectorAll("#note-list li").forEach((li) => {
         const noteText = li.querySelector("span").textContent.toLowerCase();
-        li.style.display = noteText.includes(searchTerm) ? "flex" : "none";
+        const tags = li.getAttribute("data-tags")?.toLowerCase() || "";
+
+        const matchesText = noteText.includes(searchTerm);
+        const matchesTag = tags.includes(searchTerm.startsWith("#") ? searchTerm.slice(1) : searchTerm);
+
+        li.style.display = (searchTerm.startsWith("#") ? matchesTag : matchesText) ? "flex" : "none";
         });
     });
 
@@ -60,7 +66,9 @@ document.addEventListener("DOMContentLoaded", function(){
         console.log("Yeni not ekleniyor:", noteText);
 
         const createdAt = noteDate || new Date().toLocaleString("tr-TR");
+        const tags = noteText.match(/#\w+/g) || [];
         const li = document.createElement("li");
+        li.setAttribute("data-tags", tags.join(","));
 
         li.className = "flex justify-between items-center bg-gray-200 dark:bg-gray-700 p-2 rounded-md shadow-sm";
         li.innerHTML = `
@@ -86,6 +94,8 @@ document.addEventListener("DOMContentLoaded", function(){
         });
 
         li.querySelector(".edit-btn").addEventListener("click", function () {
+            li.setAttribute("data-tags",tags.join(","));
+            
             const span = li.querySelector("div span");
             const originalText = span.textContent;
         
