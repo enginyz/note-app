@@ -12,6 +12,17 @@ document.addEventListener("DOMContentLoaded", function(){
 
     loadNotes();
 
+    const searchInput = document.querySelector("#search-input");
+
+    searchInput.addEventListener("input", function () {
+        const searchTerm = searchInput.value.toLowerCase();
+        document.querySelectorAll("#note-list li").forEach((li) => {
+        const noteText = li.querySelector("span").textContent.toLowerCase();
+        li.style.display = noteText.includes(searchTerm) ? "flex" : "none";
+        });
+    });
+
+
     cancelDeleteBtn.addEventListener("click", function () {
         noteToDelete = null;
         confirmModal.classList.add("hidden"); // Modalı gizle
