@@ -41,8 +41,10 @@ document.addEventListener("DOMContentLoaded", function(){
         if (noteToDelete) {
             noteToDelete.remove();
             saveNotes();
+            renderTagFilters();
             noteToDelete = null;
             confirmModal.classList.add("hidden");
+            searchInput.dispatchEvent(new Event("input"));
         }
     });
 
