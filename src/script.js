@@ -11,6 +11,7 @@ document.addEventListener("DOMContentLoaded", function(){
     let noteToDelete = null;
 
     loadNotes();
+    renderTagFilters();
 
     const searchInput = document.querySelector("#search-input");
 
@@ -19,10 +20,11 @@ document.addEventListener("DOMContentLoaded", function(){
 
         document.querySelectorAll("#note-list li").forEach((li) => {
         const noteText = li.querySelector("span").textContent.toLowerCase();
-        const tags = li.getAttribute("data-tags")?.toLowerCase() || "";
-
         const matchesText = noteText.includes(searchTerm);
-        const matchesTag = tags.includes(searchTerm.startsWith("#") ? searchTerm.slice(1) : searchTerm);
+
+        const tags = li.getAttribute("data-tags")?.toLowerCase() || "";
+        const tagArray = tags.split(",");
+        const matchesTag = tagArray.includes(searchTerm);
 
         li.style.display = (searchTerm.startsWith("#") ? matchesTag : matchesText) ? "flex" : "none";
         });
@@ -31,7 +33,7 @@ document.addEventListener("DOMContentLoaded", function(){
 
     cancelDeleteBtn.addEventListener("click", function () {
         noteToDelete = null;
-        confirmModal.classList.add("hidden"); // Modalı gizle
+        confirmModal.classList.add("hidden");
     });
     
     confirmDeleteBtn.addEventListener("click", function () {
@@ -43,14 +45,12 @@ document.addEventListener("DOMContentLoaded", function(){
         }
     });
 
-    // Notu kaydet butonuna tıklanınca çalışır.
     saveNoteButton.addEventListener("click", function(){
         console.log("Kaydet butonuna tıklandı");
         addNote(noteInput.value);
         noteInput.value = "";
     });
 
-    // Enter tuşu ile not ekleme
     noteInput.addEventListener("keypress", function(e){
         if(e.key === "Enter" && !e.shiftKey){
             e.preventDefault();
@@ -59,6 +59,34 @@ document.addEventListener("DOMContentLoaded", function(){
         }
     });
 
+    function renderTagFilters(){
+        const tagFilter = document.querySelector("#tag-filter");
+        const allTags = new Set();
+
+        document.querySelectorAll("#note-list li").forEach((li) => {
+            const tags = li.getAttribute("data-tags")?.split(",") || [];
+            tags.forEach(tag => allTags.add(tag));
+        });
+
+        tagFilter.innerHTML = "";
+
+        allTags.forEach(tag => {
+            if (!tag) return;
+            const button = document.createElement("button");
+            button.textContent = tag;
+            button.className = "px-2 py-1 bg-grat-300 text-sm rounded hover:bg-gray-400 transition";
+
+            button.addEventListener("click", () => {
+                const searchInput = document.querySelector("#search-input");
+                searchInput.value = tag;
+                searchInput.value = tag.trim();
+                searchInput.dispatchEvent(new Event("input"));
+            });
+
+            tagFilter.appendChild(button);
+        });
+    }
+
     function addNote(noteText, noteDate = null, shouldSave = true){
 
         if(noteText.trim() === "") return;
@@ -66,7 +94,7 @@ document.addEventListener("DOMContentLoaded", function(){
         console.log("Yeni not ekleniyor:", noteText);
 
         const createdAt = noteDate || new Date().toLocaleString("tr-TR");
-        const tags = noteText.match(/#\w+/g) || [];
+        const tags = noteText.match(/#[\p{L}\p{N}_]+/gu) || [];
         const li = document.createElement("li");
         li.setAttribute("data-tags", tags.join(","));
 
@@ -86,6 +114,7 @@ document.addEventListener("DOMContentLoaded", function(){
 
         if(shouldSave){
             saveNotes();
+            renderTagFilters();
         }
 
         li.querySelector(".delete-btn").addEventListener("click", function(){
