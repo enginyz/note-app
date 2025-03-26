@@ -108,7 +108,7 @@ document.addEventListener("DOMContentLoaded", function(){
         li.className = "flex justify-between items-center bg-gray-200 dark:bg-gray-700 p-2 rounded-md shadow-sm";
         li.innerHTML = `
             <div class="flex flex-col w-full">
-                <span class="text-gray-800" data-date="${createdAt}">${noteText}</span>
+                <span class="text-gray-800 line-clamp-3 break-words" data-date="${createdAt}">${noteText}</span>
                 <small class="text-xs text-gray-500 mt-1">📅 ${createdAt}</small>
             </div>
             <div class="flex gap-2">
