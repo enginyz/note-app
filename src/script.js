@@ -9,6 +9,7 @@ document.addEventListener("DOMContentLoaded", function(){
     const cancelDeleteBtn = document.querySelector("#cancel-delete");
     const confirmDeleteBtn = document.querySelector("#confirm-delete");
     let noteToDelete = null;
+    let activeTag = null;
 
     loadNotes();
     renderTagFilters();
@@ -73,13 +74,19 @@ document.addEventListener("DOMContentLoaded", function(){
         allTags.forEach(tag => {
             if (!tag) return;
             const button = document.createElement("button");
-            button.textContent = tag;
+            button.textContent = `${tag}`;
             button.className = "px-2 py-1 bg-grat-300 text-sm rounded hover:bg-gray-400 transition";
 
             button.addEventListener("click", () => {
                 const searchInput = document.querySelector("#search-input");
-                searchInput.value = tag;
-                searchInput.value = tag.trim();
+
+                if (activeTag === tag) {
+                    searchInput.value = "";
+                    activeTag = null;
+                } else {
+                    searchInput.value = `${tag}`;
+                    activeTag = tag;
+                }
                 searchInput.dispatchEvent(new Event("input"));
             });
 
