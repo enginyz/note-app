@@ -152,9 +152,12 @@ document.addEventListener("DOMContentLoaded", function(){
                 newSpan.setAttribute("data-date", date);
               
                 li.querySelector("div").replaceChild(newSpan, textarea);
-
                 const small = li.querySelector("small");
                 small.textContent = `📅 ${date}`;
+
+                const newTags = updatedText.match(/#[\p{L}\p{N}_]+/gu) || [];
+                li.setAttribute("data-tags", newTags.join(","));
+                renderTagFilters();
                 
                 saveNotes();
             });
